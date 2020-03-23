@@ -12,26 +12,27 @@ import com.scaleSampark.repository.RegistrationRepository;
 
 @Service
 public class RegistrationService {
-
+	
 	@Autowired
-	RegistrationRepository registrationRepository;
-
+	private RegistrationRepository participantDetailsRepository;
+	
+   
 	public Long saveParticipantDetails(ParticipantDetails participantDetails) {
-		participantDetails = registrationRepository.save(participantDetails);
+		participantDetails = participantDetailsRepository.save(participantDetails);
 		return participantDetails.getParticipant_uuid();
 	}
 
 	public List<ParticipantDetails> getParticipantList() {
 		List<ParticipantDetails>  particiPantList = new ArrayList<>();
-		Iterable<ParticipantDetails> i = registrationRepository.findAll();
+		Iterable<ParticipantDetails> i = participantDetailsRepository.findAll();
 		i.forEach(particiPant->{
 			particiPantList.add(particiPant);
 		});
-		return Arrays.asList();
+		return particiPantList;
 	}
 
 	public boolean disableParticipant(String id) {
-		registrationRepository.delete(Long.parseLong(id));
+		participantDetailsRepository.delete(Long.parseLong(id));
 		return true;
-	}
+	} 
 }
