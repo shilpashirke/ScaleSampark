@@ -16,7 +16,7 @@ import javax.persistence.TemporalType;
 @SuppressWarnings("serial")
 @Entity
 @Table(name="TB_MESSAGE")
-public class MessageDetails implements Serializable {
+public class MessageDetailsEntity implements Serializable {
 
 	@Id
 	@GeneratedValue
@@ -33,7 +33,7 @@ public class MessageDetails implements Serializable {
 	
 	@ManyToOne
     @JoinColumn
-	private MessageType messageType;
+	private MessageTypeEntity messageType;
 
 	public Long getMessageUuid() {
 		return messageUuid;
@@ -67,11 +67,11 @@ public class MessageDetails implements Serializable {
 		this.sentTime = sentTime;
 	}
 
-	public MessageType getMessageType() {
+	public MessageTypeEntity getMessageType() {
 		return messageType;
 	}
 
-	public void setMessageType(MessageType messageType) {
+	public void setMessageType(MessageTypeEntity messageType) {
 		this.messageType = messageType;
 	}
 }

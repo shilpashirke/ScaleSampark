@@ -11,7 +11,7 @@ import javax.persistence.Table;
 @SuppressWarnings("serial")
 @Entity
 @Table(name="TB_MESSAGETYPE")
-public class MessageType implements Serializable{
+public class MessageTypeEntity implements Serializable{
 	
 	@Id
 	@GeneratedValue
