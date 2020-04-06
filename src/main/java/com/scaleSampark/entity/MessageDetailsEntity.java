@@ -3,6 +3,7 @@ package com.scaleSampark.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,11 +28,11 @@ public class MessageDetailsEntity implements Serializable {
 	@Column(name = "message", nullable = false)
 	private String message;
 	
-	@Column(name = "sentTime", insertable = false, updatable = false, columnDefinition = "TIMESTAMP default getdate()")
+	@Column(name = "sentTime", insertable = false, updatable = false, columnDefinition = "TIMESTAMP default CURRENT_TIMESTAMP")
  	@Temporal(TemporalType.TIMESTAMP)
     private Date sentTime;
 	
-	@ManyToOne
+	@ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn
 	private MessageTypeEntity messageType;
 

@@ -1,68 +1,76 @@
 package com.scaleSampark.collector;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import com.scaleSampark.dto.MessageDetailsDto;
 import com.scaleSampark.entity.MessageDetailsEntity;
+import com.scaleSampark.entity.ParticipantDetails;
+import com.scaleSampark.response.ResponseStatus;
 import com.scaleSampark.response.ScaleSamparkResponse;
 import com.scaleSampark.service.MessageService;
+import com.scaleSampark.util.ResponseStatusUtil;
+import com.scaleSampark.util.ScaleSamparkConstant;
+import com.scaleSampark.util.ScaleSamparkHelper;
 
 @Component
 public class MessageCollector {
 	@Autowired
 	MessageService messageService;
+	
+	@Autowired
+	ScaleSamparkHelper scaleSamparkHelper; 
 
-	public ScaleSamparkResponse getMessageDetails(Integer pageNo, Integer pageSize, String sortBy) {
+	public ScaleSamparkResponse getMessageDetails(Integer pageNo, Integer pageSize) {
 		ScaleSamparkResponse response = new ScaleSamparkResponse();
 		try{
-			List<MessageDetailsEntity> list = messageService.getMessageDetails(pageNo, pageSize, sortBy);
-			List<MessageDetailsDto> detailsList =messageDetailsResponseMapper(list);
+			List<MessageDetailsEntity> list = messageService.getMessageDetails(pageNo, pageSize);
+			List<MessageDetailsDto> detailsList =scaleSamparkHelper.messageDetailsResponseMapper(list);
 			response.setData(detailsList);
-			setResponseStatus();
+			response.setResponseStatus(ResponseStatusUtil.setResponseStatus());
 		}catch(Exception e){
-			setErrorResponseStatus();
+			response.setResponseStatus(ResponseStatusUtil.setErrorResponseStatus(e));
 		}
 		
 		return response;
 	}
 	
-	private void setResponseStatus() {
-		// TODO Auto-generated method stub
-		
-	}
 
-	private void setErrorResponseStatus() {
-		// TODO Auto-generated method stub
-		
-	}
+	public ScaleSamparkResponse getPendingMessageDetails(Integer pageNo, Integer pageSize, Long participantId) {
 
-	private List<MessageDetailsDto> messageDetailsResponseMapper(List<MessageDetailsEntity> list) {
-		List<MessageDetailsDto> detailsDtoList= new ArrayList<MessageDetailsDto>();
-		list.forEach(message->{
-			MessageDetailsDto detailsDto = new MessageDetailsDto();
-			detailsDto.setMessage(message.getMessage());
-			detailsDto.setMessageType(message.getMessageType()!=null?message.getMessageType().getMessageType():"Text");
-			detailsDto.setMessageUuid(message.getMessageUuid());
-			detailsDto.setParticipantUuid(message.getParticipantUuid());
-			detailsDto.setSentTime(setDateTime(message.getSentTime()));
-			detailsDtoList.add(detailsDto);
-		});
-		return detailsDtoList;
-	}
-
-	private String setDateTime(Date sentTime) {
-		if(sentTime !=null){
-			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-			return dateFormat.format(sentTime);
+		ScaleSamparkResponse response = new ScaleSamparkResponse();
+		try{
+			List<MessageDetailsEntity> list = messageService.getPendingMessageDetails(pageNo, pageSize,participantId);
+			List<MessageDetailsDto> detailsList =scaleSamparkHelper.messageDetailsResponseMapper(list);
+			response.setData(detailsList);
+			response.setResponseStatus(ResponseStatusUtil.setResponseStatus());
+		}catch(Exception e){
+			e.printStackTrace();
+			response.setResponseStatus(ResponseStatusUtil.setErrorResponseStatus(e));
 		}
-		else
-			return "";
+		
+		return response;
+	
+	}
+
+
+	public ScaleSamparkResponse saveMessageDetails(MessageDetailsDto messageDetails) {
+
+		ScaleSamparkResponse response = new ScaleSamparkResponse();
+		try {
+			MessageDetailsEntity detailEntity =scaleSamparkHelper.messageRequestMapper(messageDetails);
+			Long registrationUuid = messageService.saveMessageDetails(detailEntity);
+			response.setData(registrationUuid);
+			response.setResponseStatus(ResponseStatusUtil.setResponseStatus());
+		}catch (DataIntegrityViolationException ex) {
+			ResponseStatus responseStatus=ResponseStatusUtil.setErrorResponseStatus(ex);
+			responseStatus.setMessage("Duplicate name or email.");
+			response.setResponseStatus(responseStatus);
+		} catch (Exception e) {
+			response.setResponseStatus(ResponseStatusUtil.setErrorResponseStatus(e));
+		}
+		return response;
 	}
 }

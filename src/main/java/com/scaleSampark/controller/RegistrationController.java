@@ -1,8 +1,10 @@
 package com.scaleSampark.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,29 +12,38 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.scaleSampark.entity.ParticipantDetails;
-import com.scaleSampark.service.RegistrationService;
+import com.scaleSampark.collector.RegistrationCollector;
+import com.scaleSampark.dto.ParticipantDetailsDto;
+import com.scaleSampark.response.ScaleSamparkResponse;
 
 @RestController
 public class RegistrationController {
 
 	@Autowired
-	RegistrationService registrationService;
+	RegistrationCollector registrationCollector;
 
 	@PostMapping("/participant")
-	public Long saveParticipantDetails(@RequestBody ParticipantDetails participantDetails) {
-		return registrationService.saveParticipantDetails(participantDetails);
+	public ResponseEntity<ScaleSamparkResponse> saveParticipantDetails(
+			@RequestBody ParticipantDetailsDto participantDetails) {
+		ScaleSamparkResponse response = null;
+		if (null == participantDetails.getEmail() && null == participantDetails.getNickName()) {
+			return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+		}
+		response = registrationCollector.saveParticipantDetails(participantDetails);
+		return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.OK);
 	}
 
 	@GetMapping("/participant")
-	public List<ParticipantDetails> getParticipantDetails() {
-		return registrationService.getParticipantList();
+	public ResponseEntity<ScaleSamparkResponse> getParticipantDetails() {
+		ScaleSamparkResponse response = registrationCollector.getParticipantList();
+		return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.OK);
+
 	}
 
 	@DeleteMapping("/participant/{participantId}")
-	public Boolean disableParticipant(@PathVariable("participantId") String participantId) {
-		return registrationService.disableParticipant(participantId);
-	} 
-	
+	public ResponseEntity<ScaleSamparkResponse> disableParticipant(@PathVariable("participantId") Long participantId) {
+		ScaleSamparkResponse response = registrationCollector.disableParticipant(participantId);
+		return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.OK);
+	}
 
 }
