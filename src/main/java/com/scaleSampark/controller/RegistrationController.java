@@ -26,7 +26,7 @@ public class RegistrationController {
 	public ResponseEntity<ScaleSamparkResponse> saveParticipantDetails(
 			@RequestBody ParticipantDetailsDto participantDetails) {
 		ScaleSamparkResponse response = null;
-		if (null == participantDetails.getEmail() && null == participantDetails.getNickName()) {
+		if (null == participantDetails.getEmail() || null == participantDetails.getNickName()) {
 			return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
 		response = registrationCollector.saveParticipantDetails(participantDetails);
@@ -36,13 +36,18 @@ public class RegistrationController {
 	@GetMapping("/participant")
 	public ResponseEntity<ScaleSamparkResponse> getParticipantDetails() {
 		ScaleSamparkResponse response = registrationCollector.getParticipantList();
-		return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.OK);
-
+		if (response.getData() != null)
+			return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.OK);
+		else
+			return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.NO_CONTENT);
 	}
 
 	@DeleteMapping("/participant/{participantId}")
 	public ResponseEntity<ScaleSamparkResponse> disableParticipant(@PathVariable("participantId") Long participantId) {
 		ScaleSamparkResponse response = registrationCollector.disableParticipant(participantId);
+		if (response.getData() == null) {
+			return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.NO_CONTENT);
+		}
 		return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.OK);
 	}
 

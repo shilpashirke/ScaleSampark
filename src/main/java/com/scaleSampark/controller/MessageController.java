@@ -27,30 +27,35 @@ public class MessageController {
 	MessageCollector  messageCollector;
 
 	@PostMapping("/saveMessage")
-	public ResponseEntity<ScaleSamparkResponse> saveMessageDetails(@RequestBody MessageDetailsDto messageDetails) throws ScaleSamparkException {
+	public ResponseEntity<ScaleSamparkResponse> saveMessageDetails(@RequestBody MessageDetailsDto messageDetails)
+			throws ScaleSamparkException {
 		ScaleSamparkResponse response = null;
-		if (null == messageDetails.getMessage() && null == messageDetails.getParticipantUuid() && null==messageDetails.getMessageType()) {
+		if (null == messageDetails.getMessage() || null == messageDetails.getParticipantUuid()
+				|| null == messageDetails.getMessageType()) {
 			return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
-		response = messageCollector.saveMessageDetails(messageDetails);;
+		response = messageCollector.saveMessageDetails(messageDetails);
 		return new ResponseEntity<ScaleSamparkResponse>(response, new HttpHeaders(), HttpStatus.OK);
 	}
 
 	@GetMapping("/fetchMessage")
-	public ResponseEntity<ScaleSamparkResponse> getMessageDetails(
-            @RequestParam(defaultValue = "0") Integer pageNo, 
-            @RequestParam(defaultValue = "10") Integer pageSize) {
-		
-		ScaleSamparkResponse scaleSamparkResponse =messageCollector.getMessageDetails(pageNo, pageSize);
+	public ResponseEntity<ScaleSamparkResponse> getMessageDetails(@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize) {
+
+		ScaleSamparkResponse scaleSamparkResponse = messageCollector.getMessageDetails(pageNo, pageSize);
+		if(scaleSamparkResponse.getData() !=null)
 		return new ResponseEntity<ScaleSamparkResponse>(scaleSamparkResponse, new HttpHeaders(), HttpStatus.OK);
+		else
+			return new ResponseEntity<ScaleSamparkResponse>(scaleSamparkResponse, new HttpHeaders(), HttpStatus.NO_CONTENT);
 	}
 
 	@GetMapping("/fetchPendingMessage/{participantId}")
-	public ResponseEntity<ScaleSamparkResponse> getPendingMessageDetails(@PathVariable("participantId") Long participantId,
-            @RequestParam(defaultValue = "0") Integer pageNo, 
-            @RequestParam(defaultValue = "10") Integer pageSize) {
-		
-		ScaleSamparkResponse scaleSamparkResponse =messageCollector.getPendingMessageDetails(pageNo, pageSize,participantId);
+	public ResponseEntity<ScaleSamparkResponse> getPendingMessageDetails(
+			@PathVariable("participantId") Long participantId, @RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize) {
+
+		ScaleSamparkResponse scaleSamparkResponse = messageCollector.getPendingMessageDetails(pageNo, pageSize,
+				participantId);
 		return new ResponseEntity<ScaleSamparkResponse>(scaleSamparkResponse, new HttpHeaders(), HttpStatus.OK);
 	}
 }

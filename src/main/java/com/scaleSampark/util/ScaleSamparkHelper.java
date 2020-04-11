@@ -13,12 +13,12 @@ import com.scaleSampark.util.DateUtil;
 
 @Component
 public class ScaleSamparkHelper {
-
+	final String secretKey = "ssshhhhhhhhhhh!!!!";
 	public List<MessageDetailsDto> messageDetailsResponseMapper(List<MessageDetailsEntity> list) {
 		List<MessageDetailsDto> detailsDtoList= new ArrayList<MessageDetailsDto>();
 		list.forEach(message->{
 			MessageDetailsDto detailsDto = new MessageDetailsDto();
-			detailsDto.setMessage(message.getMessage());
+			detailsDto.setMessage(decryptName(message.getMessage()));
 			detailsDto.setMessageType(message.getMessageType()!=null?message.getMessageType().getMessageType():"Text");
 			detailsDto.setMessageUuid(message.getMessageUuid());
 			detailsDto.setParticipantUuid(message.getParticipantUuid());
@@ -49,10 +49,20 @@ public class ScaleSamparkHelper {
 		return list;
 	}
 
+	private String decryptName(String nickName) {
+		String decryptedString = AES.decrypt(nickName, secretKey) ;
+		return decryptedString;
+	}
+
+	private String encryptName(String originalString) {
+		    String encryptedString = AES.encrypt(originalString, secretKey) ;
+		return encryptedString;
+	}
+
 	public MessageDetailsEntity messageRequestMapper(MessageDetailsDto messageDetails) {
 		MessageDetailsEntity detailsEntity = new MessageDetailsEntity();
 		detailsEntity.setParticipantUuid(messageDetails.getParticipantUuid());
-		detailsEntity.setMessage(messageDetails.getMessage());
+		detailsEntity.setMessage(encryptName(messageDetails.getMessage()));
 		MessageTypeEntity entity = new MessageTypeEntity();
 		entity.setMessageType(messageDetails.getMessageType());
 		detailsEntity.setMessageType(entity);
